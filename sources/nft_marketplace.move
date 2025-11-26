@@ -1,109 +1,108 @@
-module simple_market::marketplace 
-    use sui::tx_context::{self, TxContext};
+module simple_market::marketplace {
+    use sui::tx_context;
     use sui::transfer;
     use sui::object;
     use sui::event;
+    use sui::coin;
+    use sui::sui::SUI;
     use std::string;
 
-   
-    //   SIMPLE NFT STRUCT
-    struct MyNFT has key {
-        id: object::ID,
+    // ========== STRUCTS ==========
+
+    /// A simple NFT
+    public struct MyNFT has key, store {
+        id: object::UID,
         name: string::String,
         owner: address,
     }
 
-   
-    //   LISTING STRUCT (HOLDS NFT + PRICE)
-    struct Listing has key {
-        id: object::ID,
+    /// A marketplace listing
+    public struct Listing has key, store {
+        id: object::UID,
         nft: MyNFT,
+        price: u64,
         seller: address,
-        price: u64,
     }
 
-    //   EVENTS (JUST FOR BACKEND INDEXING)
-    struct MintEvent has copy, drop, store {
-        nft_id: object::ID,
-        owner: address,
-    }
+    // ========== EVENTS ==========
+    public struct MintEvent has copy, drop { nft_id: object::ID, owner: address, name: string::String }
+    public struct ListEvent has copy, drop { listing_id: object::ID, seller: address, price: u64 }
+    public struct BuyEvent has copy, drop { listing_id: object::ID, seller: address, buyer: address, price: u64 }
 
-    struct ListEvent has copy, drop, store {
-        listing_id: object::ID,
-        nft_id: object::ID,
-        seller: address,
-        price: u64,
-    }
+    // ========== ERRORS ==========
+    const ENOT_OWNER: u64 = 0;
+    const EINSUFFICIENT_PAYMENT: u64 = 1;
 
-    struct BuyEvent has copy, drop, store {
-        listing_id: object::ID,
-        nft_id: object::ID,
-        buyer: address,
-        price: u64,
-    }
+    // ========== FUNCTIONS ==========
 
-
-    //   MINT NFT
-    public entry fun mint(name: string::String, ctx: &mut TxContext) {
+    /// Mint NFT
+    public entry fun mint_nft(name: string::String, ctx: &mut tx_context::TxContext) {
         let sender = tx_context::sender(ctx);
+        let nft = MyNFT { id: object::new(ctx), name, owner: sender };
 
-        let nft = MyNFT {
-            id: object::new(ctx),
-            name,
-            owner: sender,
-        };
-
-        // Emit event
         event::emit(MintEvent {
             nft_id: object::id(&nft),
-            owner: sender
+            owner: sender,
+            name: nft.name,
         });
 
-        // Send NFT to user
         transfer::public_transfer(nft, sender);
     }
 
-    //   LIST NFT (MOVE INTO LISTING)
-    public entry fun list_nft(nft: MyNFT, price: u64, ctx: &mut TxContext): Listing {
+    /// List NFT for sale
+    public entry fun list_nft(nft: MyNFT, price: u64, ctx: &mut tx_context::TxContext) {
         let sender = tx_context::sender(ctx);
+        assert!(nft.owner == sender, ENOT_OWNER);
 
-        let listing = Listing {
-            id: object::new(ctx),
-            nft,
-            seller: sender,
-            price,
-        };
+        let listing = Listing { id: object::new(ctx), nft, price, seller: sender };
 
         event::emit(ListEvent {
             listing_id: object::id(&listing),
-            nft_id: object::id(&listing.nft),
             seller: sender,
             price,
         });
 
-        listing
+        transfer::public_transfer(listing, sender);
     }
 
-    //   BUY NFT
-    public entry fun buy(listing: Listing, ctx: &mut TxContext) {
+    /// Buy a listed NFT
+       /// Buy a listed NFT
+    public entry fun buy(
+        listing: Listing,
+        payment: coin::Coin<SUI>,
+        ctx: &mut tx_context::TxContext
+    ) {
         let buyer = tx_context::sender(ctx);
-        let nft_id = object::id(&listing.nft);
-        let price = listing.price;
-        let listing_id = object::id(&listing);
 
-        // Transfer NFT to buyer
-        let mut nft = listing.nft;
+        // Take ownership by destructuring Listing
+        let Listing { id, nft, price, seller } = listing;
+
+        // Check correct payment amount
+        let paid_amount = coin::value(&payment);
+        assert!(paid_amount == price, EINSUFFICIENT_PAYMENT);
+
+        // Pay seller with public transfer
+        transfer::public_transfer(payment, seller);
+
+        // Transfer NFT to buyer (update owner field)
+        let mut nft = nft;
         nft.owner = buyer;
         transfer::public_transfer(nft, buyer);
 
-        // Emit event
+        // Emit buy event
         event::emit(BuyEvent {
-            listing_id,
-            nft_id,
+            listing_id: object::uid_to_inner(&id),
+            seller,
             buyer,
             price,
         });
 
-        // Listing is consumed (deleted) automatically because it's moved in.
+        // Delete listing's UID
+        object::delete(id);
     }
 
+
+
+    // Cancel a listing
+    
+}
