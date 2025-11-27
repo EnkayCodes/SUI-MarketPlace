@@ -29,12 +29,11 @@ module simple_market::marketplace {
     public struct ListEvent has copy, drop { listing_id: object::ID, seller: address, price: u64 }
     public struct BuyEvent has copy, drop { listing_id: object::ID, seller: address, buyer: address, price: u64 }
 
-    // ========== ERRORS ==========
+    // ERRORS 
     const ENOT_OWNER: u64 = 0;
     const EINSUFFICIENT_PAYMENT: u64 = 1;
 
-    // ========== FUNCTIONS ==========
-
+    // FUNCTIONS 
     /// Mint NFT
     public entry fun mint_nft(name: string::String, ctx: &mut tx_context::TxContext) {
         let sender = tx_context::sender(ctx);
@@ -100,8 +99,6 @@ module simple_market::marketplace {
         // Delete listing's UID
         object::delete(id);
     }
-
-
 
     // Cancel a listing
     
