@@ -1,4 +1,4 @@
-# Simple NFT Marketplace on SUI 🛒
+# Simple NFT Marketplace on SUI 
 
 A basic on-chain marketplace built using **Move language**, **FastAPI backend**, and **Python Sui SDK**, enabling users to mint NFTs, list them for sale, and buy NFTs with SUI tokens.
 
@@ -22,15 +22,15 @@ move/sources/simple_market.move
 
 Implements:
 
-* ✔ Mint new NFTs
-* ✔ List NFT for sale
-* ✔ Buy NFT with SUI payment
-* ✔ Emits events (Mint, List, Buy)
+*  Mint new NFTs
+*  List NFT for sale
+*  Buy NFT with SUI payment
+*  Emits events (Mint, List, Buy)
 
 ---
 
 
-## 🌐 Backend API
+##  Backend API
 
 | Endpoint    | Method | Description                           |
 | ----------- | ------ | ------------------------------------- |
@@ -47,7 +47,7 @@ Implements:
 
 ---
 
-## 🚀 How To Run
+##  How To Run
 
 ### 1️⃣ Install Prerequisites
 
@@ -58,14 +58,14 @@ Implements:
 ### 2️⃣ Clone the repo
 
 ```bash
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
+git clone https://github.com/EnkayCodes/SUI-MarketPlace.git
+cd SUI-MarketPlace
 ```
 
 ### 3️⃣ Install Python Dependencies
 
 ```bash
-pip install fastapi uvicorn sui-python-sdk pydantic
+pip install -r requirements.txt
 ```
 
 ### 4️⃣ (Optional) Set RPC Node
@@ -81,11 +81,11 @@ uvicorn main:app --reload
 ```
 
 Server runs at:
-👉 `http://localhost:8000/docs` (Swagger UI)
+ `http://localhost:8000/docs` (Swagger UI)
 
 ---
 
-## 💻 Testing the API
+##  Testing the API
 
 ### 🔹 Mint NFT
 
@@ -113,24 +113,24 @@ curl -X POST http://localhost:8000/buy \
 
 ---
 
-## ⚠️ Limitations
+##  Limitations
 
-* ❌ No UI frontend (only backend + smart contract)
-* ❌ `GET /listings` not implemented
-* ❌ Buyer must manually provide `payment_id`
-* ❌ No NFT metadata (images/file storage)
-* ❌ No royalties or advanced features
-
----
-
-## 🎯 Future Improvements
-
-* 🔄 Automatic coin selection
-* 📡 Implement `/listings` using event queries or indexer
-* 🖼 NFT metadata with IPFS/Arweave
-* 💸 Creator royalties
-* 🛍 React/Next.js UI
+*  No UI frontend (only backend + smart contract)
+*  `GET /listings` not implemented
+*  Buyer must manually provide `payment_id`
+*  No NFT metadata (images/file storage)
+*  No royalties or advanced features
 
 ---
 
-🚀 **Built for Web3 developers exploring the Sui ecosystem!**
+##  Future Improvements
+
+*  Automatic coin selection
+*  Implement `/listings` using event queries or indexer
+*  NFT metadata with IPFS/Arweave
+*  Creator royalties
+*  React/Next.js UI
+
+---
+
+ **Built for Web3 developers exploring the Sui ecosystem!**
